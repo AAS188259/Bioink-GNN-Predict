@@ -40,7 +40,7 @@ with col2:
     shear_stress = tau_0 + K * (shear_rate ** n)
     viscosity = shear_stress / shear_rate
     
-    fig, ax = plt.subplots(figsize=(6, 3.5))
+    fig, ax = plt.subplots(figsize=(5.5, 2.5))
     ax.plot(shear_rate, viscosity, color="#1E90FF", linewidth=2.5)
     ax.set_xlabel("Shear Rate (1/s)")
     ax.set_ylabel("Viscosity (Pa·s)")

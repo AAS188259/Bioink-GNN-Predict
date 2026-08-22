@@ -1,31 +1,35 @@
-import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
-import pickle
+import pandas as pd
 
-def train_bioink_brain():
-    # Load dataset
-    df = pd.read_csv('bioink_simulated_data.csv')
+def generate_bioink_dataset(num_samples=200):
+    np.random.seed(42)
     
-    X = df[['banana_fiber_pct', 'bacterial_cellulose_pct', 'crosslink_density', 'shear_rate']]
-    y = df[['predicted_viscosity', 'structural_fidelity']]
+    # Input Features (What a formulation scientist controls)
+    banana_fiber_pct = np.random.uniform(0.5, 8.0, num_samples)      # 0.5% to 8% concentration
+    bacterial_cellulose_pct = np.random.uniform(1.0, 5.0, num_samples) # 1% to 5% concentration
+    crosslink_density = np.random.uniform(10, 90, num_samples)         # Cross-linking percentage
+    shear_rate = np.random.uniform(1, 500, num_samples)                # Printhead shear strain (1/s)
     
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_test_split=0.2, random_state=42)
+    # Target Physics Metrics calculated using simulated continuum mechanics
+    # 1. Non-Newtonian Shear Thinning Viscosity (Power-law fluid logic)
+    viscosity = (100.0 * (banana_fiber_pct * 1.5) + (bacterial_cellulose_pct * 2.0)) / (shear_rate ** 0.4)
+    viscosity += np.random.normal(0, viscosity * 0.05, num_samples) # Add real-world experimental noise
     
-    # Train predictor model mimicking network topological adjustments
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
+    # 2. Structural Printing Fidelity % (Higher fiber and crosslinking = stronger shape hold)
+    base_fidelity = (banana_fiber_pct * 5) + (bacterial_cellulose_pct * 4) + (crosslink_density * 0.5)
+    structural_fidelity = np.clip(base_fidelity - (viscosity * 0.1), 10, 98) 
     
-    # Save trained ML engine to disk
-    with open('bioink_model.pkl', 'wb') as f:
-        pickle.dump(model, f)
-    print("✅ Physics prediction engine trained and successfully saved!")
+    df = pd.DataFrame({
+        'banana_fiber_pct': banana_fiber_pct,
+        'bacterial_cellulose_pct': bacterial_cellulose_pct,
+        'crosslink_density': crosslink_density,
+        'shear_rate': shear_rate,
+        'predicted_viscosity': viscosity,
+        'structural_fidelity': structural_fidelity
+    })
+    
+    df.to_csv('bioink_simulated_data.csv', index=False)
+    print("✅ Successfully generated simulated soft-matter rheology dataset!")
 
 if __name__ == "__main__":
-    import os
-    if not os.path.exists('bioink_simulated_data.csv'):
-        from generate_data import generate_bioink_dataset
-        generate_bioink_dataset()
-    train_bioink_brain()
-
+    generate_bioink_dataset()

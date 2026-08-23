@@ -86,17 +86,4 @@ if st.button("📊 Evaluate Rheological Response"):
     with view_col2:
         st.markdown("#### 🕸️ Microstructural Spatial Graph Network Topology")
         st.write("Spatial coordinate map analyzing structural mesh connectivity matrices inside the hydrogel slurry matrix:")
-         st.plotly_chart(generate_topological_mesh(), use_container_width=True)
-Use code with caution.File 5: README.mdmarkdown# Bioink-GNN-Predict 🧫
-
-### Computational Continuum Physics & Topological Analysis Platform for Multi-Component Advanced Material Design
-
-## Overview
-This platform models non-Newtonian flow mechanics, dynamic viscosity coefficients, and structural deformation properties within multicomponent polymer hydrogels. The system focuses on evaluating spatial configurations of sustainable materials (lignocellulosic plant wastes and bacterial nanocellulose) to predict rheological responses under printhead extrusion constraints without relying on manual trial-and-error workflows.
-
-## Mathematical Core & Architecture
-* **Non-Newtonian Mechanics**: Generates simulated validation metrics using the Ostwald-de Waele power-law fluid equation to assess non-linear shear-thinning properties.
-* **Topological Graph Graphing**: Implements spatial network graph frameworks using `NetworkX` to describe polymer chains as mathematical matrices.
-* **Inference Pipeline**: Utilizes tree-structured regressor matrices via `Scikit-Learn` to map continuous multi-variable hydrogel inputs directly into real-time performance curves.
-Use code with caution.Execution ProtocolPush these updated scripts into your GitHub profile.Open your Streamlit Community Cloud console window, click Manage app, and click Reboot app.Now, when reviewers browse your project, they will see production-grade code structured like an advanced physics application.Let me know if your Streamlit application layout loads completely without any structural syntax hiccups!Ask about
-        st.plotly_chart(generate_topological_mesh(), use_container_width=True)
+        st.plotly_chart(generate_topological_mesh(), use_container_width=True) 

@@ -87,5 +87,4 @@ if st.button("📊 Evaluate Rheological Response"):
     with view_col2:
         st.markdown("#### 🕸 *Microstructural Spatial Graph Network Topology*")
         st.write("Spatial coordinate map analyzing structural mesh connectivity matrices inside the hydrogel slurry matrix:")
-        st.plotly_chart(generate_topological_mesh(), use_container_width=True)
-Use code with caution.          
+        st.plotly_chart(generate_topological_mesh(), use_container_width=True)         

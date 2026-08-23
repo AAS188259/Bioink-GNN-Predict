@@ -1,27 +1,32 @@
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 import pickle
+import os
 
-def train_bioink_brain():
-    df = pd.read_csv('bioink_simulated_data.csv')
+def execute_pipeline():
+    data_path = 'bioink_simulated_data.csv'
+    if not os.path.exists(data_path):
+        from generate_data import generate_rheology_matrix
+        generate_rheology_matrix()
+        
+    df = pd.read_csv(data_path)
     
-    X = df[['banana_fiber_pct', 'bacterial_cellulose_pct', 'crosslink_density', 'shear_rate']]
-    y = df[['predicted_viscosity', 'structural_fidelity']]
+    features = ['c_banana', 'c_bnc', 'rho_xl', 'gamma_dot']
+    targets = ['viscosity', 'fidelity']
     
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X = df[features]
+    y = df[targets]
     
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=42)
+    
+    # High-dimensional non-linear mapping engine
+    model = RandomForestRegressor(n_estimators=150, max_depth=12, random_state=42, n_jobs=-1)
     model.fit(X_train, y_train)
     
     with open('bioink_model.pkl', 'wb') as f:
         pickle.dump(model, f)
-    print("✅ Prediction engine trained successfully!")
 
 if __name__ == "__main__":
-    import os
-    if not os.path.exists('bioink_simulated_data.csv'):
-        from generate_data import generate_bioink_dataset
-        generate_bioink_dataset()
-    train_bioink_brain()
+    execute_pipeline() 
+    execute_pipeline()

@@ -1,34 +1,44 @@
 import numpy as np
 import pandas as pd
 
-def generate_bioink_dataset(num_samples=200):
-    np.random.seed(42)
+def generate_rheology_matrix(n_samples=250, seed=42):
+    """
+    Simulates non-Newtonian continuum mechanics for composite biopolymer hydrogels.
+    Models structural network interactions of BNC and lignocellulosic matrices.
+    """
+    rng = np.random.default_rng(seed)
     
-    # Input Formulation Profiles
-    banana_fiber_pct = np.random.uniform(0.5, 8.0, num_samples)      
-    bacterial_cellulose_pct = np.random.uniform(1.0, 5.0, num_samples) 
-    crosslink_density = np.random.uniform(10, 90, num_samples)         
-    shear_rate = np.random.uniform(1, 500, num_samples)                
+    # Input parameter matrix (Formulation constraints)
+    C_banana = rng.uniform(0.5, 8.0, n_samples)      # Lignocellulosic concentration (%)
+    C_bnc = rng.uniform(1.0, 5.0, n_samples)         # Bacterial nanocellulose concentration (%)
+    rho_xl = rng.uniform(10.0, 90.0, n_samples)      # Crosslinking junction density (%)
+    gamma_dot = rng.uniform(1.0, 500.0, n_samples)   # Extrusion shear strain rate (1/s)
     
-    # Physics Targets modeled via Non-Newtonian Shear-Thinning properties
-    viscosity = (100.0 * (banana_fiber_pct * 1.5) + (bacterial_cellulose_pct * 2.0)) / (shear_rate ** 0.4)
-    viscosity += np.random.normal(0, viscosity * 0.05, num_samples) 
+    # Mathematical modeling of shear-thinning fluid dynamics (Ostwald-de Waele logic)
+    # Power-law index 'n' drops as fiber concentration patterns scale
+    n_index = 1.0 - (0.05 * C_banana + 0.03 * C_bnc)
+    K_consistency = 15.0 * (C_banana ** 1.3) + 22.0 * (C_bnc ** 1.1)
     
-    base_fidelity = (banana_fiber_pct * 5) + (bacterial_cellulose_pct * 4) + (crosslink_density * 0.5)
-    structural_fidelity = np.clip(base_fidelity - (viscosity * 0.1), 10, 98) 
+    # Apparent Viscosity calculations: eta = K * (gamma_dot) ^ (n - 1)
+    viscosity = K_consistency * (gamma_dot ** (n_index - 1.0))
+    viscosity += rng.normal(0.0, viscosity * 0.04)   # Stochastic experimental variance
     
-    df = pd.DataFrame({
-        'banana_fiber_pct': banana_fiber_pct,
-        'bacterial_cellulose_pct': bacterial_cellulose_pct,
-        'crosslink_density': crosslink_density,
-        'shear_rate': shear_rate,
-        'predicted_viscosity': viscosity,
-        'structural_fidelity': structural_fidelity
+    # Structural Fidelity parameter modeling post-extrusion structural yield stress
+    structural_yield = (C_banana * 6.2) + (C_bnc * 4.8) + (rho_xl * 0.45) - (viscosity * 0.08)
+    fidelity = np.clip(structural_yield, 5.0, 99.5)
+    
+    matrix_df = pd.DataFrame({
+        'c_banana': C_banana,
+        'c_bnc': C_bnc,
+        'rho_xl': rho_xl,
+        'gamma_dot': gamma_dot,
+        'viscosity': viscosity,
+        'fidelity': fidelity
     })
     
-    df.to_csv('bioink_simulated_data.csv', index=False)
-    print("✅ Successfully generated soft-matter simulated dataset!")
+    matrix_df.to_csv('bioink_simulated_data.csv', index=False)
+    return True
 
 if __name__ == "__main__":
-    generate_bioink_dataset()
+    generate_rheology_matrix()
 

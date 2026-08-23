@@ -15,13 +15,12 @@ def generate_rheology_matrix(n_samples=250, seed=42):
     gamma_dot = rng.uniform(1.0, 500.0, n_samples)   # Extrusion shear strain rate (1/s)
     
     # Mathematical modeling of shear-thinning fluid dynamics (Ostwald-de Waele logic)
-    # Power-law index 'n' drops as fiber concentration patterns scale
     n_index = 1.0 - (0.05 * C_banana + 0.03 * C_bnc)
     K_consistency = 15.0 * (C_banana ** 1.3) + 22.0 * (C_bnc ** 1.1)
     
     # Apparent Viscosity calculations: eta = K * (gamma_dot) ^ (n - 1)
     viscosity = K_consistency * (gamma_dot ** (n_index - 1.0))
-    viscosity += rng.normal(0.0, viscosity * 0.04)   # Stochastic experimental variance
+    viscosity += rng.normal(0.0, viscosity * 0.04, n_samples)   # Stochastic experimental variance
     
     # Structural Fidelity parameter modeling post-extrusion structural yield stress
     structural_yield = (C_banana * 6.2) + (C_bnc * 4.8) + (rho_xl * 0.45) - (viscosity * 0.08)
@@ -40,5 +39,4 @@ def generate_rheology_matrix(n_samples=250, seed=42):
     return True
 
 if __name__ == "__main__":
-    generate_rheology_matrix()
-
+    generate_rheology_matrix() 

@@ -20,14 +20,13 @@ c_bnc = st.sidebar.slider("Bacterial Nanocellulose Concentration (wt%)", 1.0, 5.
 rho_xl = st.sidebar.slider("Structural Crosslinking Node Density (%)", 10, 90, 50)
 gamma_dot = st.sidebar.slider("Printhead Shear Displacement Rate (1/s)", 1, 500, 100)
 
-def generate_topological_mesh(n_nodes=35):
+def generate_topological_mesh(n_nodes=36):
     """Computes a stable, mathematically guaranteed spatial geometric grid mapping polymer networks."""
-    # Using a structured grid layout avoids random indexing KeyErrors
     G = nx.grid_2d_graph(6, 6)
     G = nx.convert_node_labels_to_integers(G)
     
-    # Generate explicit circular coordinates for polymer matrix nodes
-    pos = {i: (np.cos(i), np.sin(i)) for i in G.nodes()}
+    # Generate explicit circular positions to avoid any node key mapping conflicts
+    pos = {i: (np.cos(i * 0.5) * 1.5, np.sin(i * 0.3) * 1.5) for i in G.nodes()}
     
     ex, ey = [], []
     for edge in G.edges():
@@ -71,9 +70,10 @@ if st.button("📊 Evaluate Rheological Response"):
     input_vector = np.array([[c_banana, c_bnc, rho_xl, gamma_dot]])
     predictions = inference_engine.predict(input_vector)
     
-    # Correctly parse the predictions mapping array outputs
-    eta_pred = predictions[0][0]
-    fidelity_pred = predictions[0][1]
+    # .flatten() handles any shape shifting matrix without index trace drops
+    flat_predictions = predictions.flatten()
+    eta_pred = flat_predictions[0]
+    fidelity_pred = flat_predictions[1]
     
     view_col1, view_col2 = st.columns(2)
     
@@ -92,4 +92,4 @@ if st.button("📊 Evaluate Rheological Response"):
     with view_col2:
         st.markdown("#### 🕸️ Microstructural Spatial Graph Network Topology")
         st.write("Spatial coordinate map analyzing structural mesh connectivity matrices inside the hydrogel slurry matrix:")
-        st.plotly_chart(generate_topological_mesh(), use_container_width=True) 
+        st.plotly_chart(generate_topological_mesh(), use_container_width=True)

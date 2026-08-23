@@ -27,8 +27,8 @@ def generate_topological_mesh(n_nodes=45, connectivity_radius=0.28):
     
     ex, ey = [], []
     for edge in G.edges():
-        x0, y0 = pos[edge[0]]
-        x1, y1 = pos[edge[1]]
+        x0, y0 = pos[edge]
+        x1, y1 = pos[edge]
         ex.extend([x0, x1, None])
         ey.extend([y0, y1, None])
         
@@ -43,7 +43,7 @@ def generate_topological_mesh(n_nodes=45, connectivity_radius=0.28):
         
     node_trace = go.Scatter(
         x=nx_coords, y=ny_coords, mode='markers',
-        marker=dict(showscale=True, colorscale='Tealrose', size=11, line_width=1.5, color=degrees, title="Junction Degrees")
+        marker=dict(showscale=True, colorscale='Tealrose', size=11, line_width=1.5, color=degrees)
     )
     
     fig = go.Figure(data=[edge_trace, node_trace],
@@ -65,9 +65,10 @@ if st.button("📊 Evaluate Rheological Response"):
         inference_engine = pickle.load(f)
         
     input_vector = np.array([[c_banana, c_bnc, rho_xl, gamma_dot]])
-    predictions = inference_engine.predict(input_vector)[0]
+    predictions = inference_engine.predict(input_vector)
     
-    eta_pred, fidelity_pred = predictions[0], predictions[1]
+    eta_pred = predictions[0][0]
+    fidelity_pred = predictions[0][1]
     
     view_col1, view_col2 = st.columns(2)
     
@@ -84,6 +85,7 @@ if st.button("📊 Evaluate Rheological Response"):
             st.warning("⚠️ Boundary State: Marginal mechanical relaxation observed.")
             
     with view_col2:
-        st.markdown("#### 🕸️ Microstructural Spatial Graph Network Topology")
+        st.markdown("#### 🕸 *Microstructural Spatial Graph Network Topology*")
         st.write("Spatial coordinate map analyzing structural mesh connectivity matrices inside the hydrogel slurry matrix:")
-        st.plotly_chart(generate_topological_mesh(), use_container_width=True) 
+        st.plotly_chart(generate_topological_mesh(), use_container_width=True)
+Use code with caution.          

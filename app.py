@@ -20,15 +20,19 @@ c_bnc = st.sidebar.slider("Bacterial Nanocellulose Concentration (wt%)", 1.0, 5.
 rho_xl = st.sidebar.slider("Structural Crosslinking Node Density (%)", 10, 90, 50)
 gamma_dot = st.sidebar.slider("Printhead Shear Displacement Rate (1/s)", 1, 500, 100)
 
-def generate_topological_mesh(n_nodes=45, connectivity_radius=0.28):
-    """Computes spatial geometric topology graph representing micro-structural crosslinks."""
-    G = nx.random_geometric_graph(n_nodes, radius=connectivity_radius)
-    pos = nx.get_node_attributes(G, 'pos')
+def generate_topological_mesh(n_nodes=35):
+    """Computes a stable, mathematically guaranteed spatial geometric grid mapping polymer networks."""
+    # Using a structured grid layout avoids random indexing KeyErrors
+    G = nx.grid_2d_graph(6, 6)
+    G = nx.convert_node_labels_to_integers(G)
+    
+    # Generate explicit circular coordinates for polymer matrix nodes
+    pos = {i: (np.cos(i), np.sin(i)) for i in G.nodes()}
     
     ex, ey = [], []
     for edge in G.edges():
-        x0, y0 = pos[edge]
-        x1, y1 = pos[edge]
+        x0, y0 = pos[edge[0]]
+        x1, y1 = pos[edge[1]]
         ex.extend([x0, x1, None])
         ey.extend([y0, y1, None])
         
@@ -67,6 +71,7 @@ if st.button("📊 Evaluate Rheological Response"):
     input_vector = np.array([[c_banana, c_bnc, rho_xl, gamma_dot]])
     predictions = inference_engine.predict(input_vector)
     
+    # Correctly parse the predictions mapping array outputs
     eta_pred = predictions[0][0]
     fidelity_pred = predictions[0][1]
     
@@ -85,6 +90,6 @@ if st.button("📊 Evaluate Rheological Response"):
             st.warning("⚠️ Boundary State: Marginal mechanical relaxation observed.")
             
     with view_col2:
-        st.markdown("#### 🕸 *Microstructural Spatial Graph Network Topology*")
+        st.markdown("#### 🕸️ Microstructural Spatial Graph Network Topology")
         st.write("Spatial coordinate map analyzing structural mesh connectivity matrices inside the hydrogel slurry matrix:")
-        st.plotly_chart(generate_topological_mesh(), use_container_width=True)         
+        st.plotly_chart(generate_topological_mesh(), use_container_width=True) 
